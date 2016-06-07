@@ -21,84 +21,111 @@ function randomData() {
     return Math.round(Math.random()*1000);
 }
 
-option = {
-    
-    title: {
-        text: 'BUSINESS MAP'
-    },
-    tooltip : {
-        trigger: 'axis'
-    },
-    legend: {
-        data:['邮件营销','联盟广告','视频广告','直接访问','搜索引擎']
-    },
-    toolbox: {
-        feature: {
-            saveAsImage: {}
+myChart.showLoading();
+
+$.get('data/asset/data/weibo.json', function (weiboData) {
+    myChart.hideLoading();
+
+    weiboData = weiboData.map(function (serieData, idx) {
+        var px = serieData[0] / 1000;
+        var py = serieData[1] / 1000;
+        var res = [[px, py]];
+
+        for (var i = 2; i < serieData.length; i += 2) {
+            var dx = serieData[i] / 1000;
+            var dy = serieData[i + 1] / 1000;
+            var x = px + dx;
+            var y = py + dy;
+            res.push([x, y, 1]);
+
+            px = x;
+            py = y;
         }
-    },
-    grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
-        containLabel: true
-    },
-    xAxis : [
-        {
-            type : 'category',
-            boundaryGap : false,
-            data : ['周一','周二','周三','周四','周五','周六','星期天']
-        }
-    ],
-    yAxis : [
-        {
-            type : 'value'
-        }
-    ],
-    series : [
-        {
-            name:'邮件营销',
-            type:'line',
-            stack: '总量',
-            areaStyle: {normal: {}},
-            data:[120, 132, 101, 134, 90, 230, 210]
+        return res;
+    });
+    myChart.setOption(option = {
+        backgroundColor: '#404a59',
+        title : {
+            text: '微博签到数据点亮中国',
+            subtext: 'From ThinkGIS',
+            sublink: 'http://www.thinkgis.cn/public/sina',
+            left: 'center',
+            top: 'top',
+            textStyle: {
+                color: '#fff'
+            }
         },
-        {
-            name:'联盟广告',
-            type:'line',
-            stack: '总量',
-            areaStyle: {normal: {}},
-            data:[220, 182, 191, 234, 290, 330, 310]
+        legend: {
+            left: 'left',
+            data: ['强', '中', '弱'],
+            textStyle: {
+                color: '#ccc'
+            }
         },
-        {
-            name:'视频video',
-            type:'line',
-            stack: '总量',
-            areaStyle: {normal: {}},
-            data:[150, 232, 201, 154, 190, 330, 410]
-        },
-        {
-            name:'直接访问',
-            type:'line',
-            stack: '总量',
-            areaStyle: {normal: {}},
-            data:[320, 332, 301, 334, 390, 330, 320]
-        },
-        {
-            name:'搜索引擎',
-            type:'line',
-            stack: '总量',
+        geo: {
+            name: '强',
+            type: 'scatter',
+            map: 'china',
             label: {
-                normal: {
-                    show: true,
-                    position: 'top'
+                emphasis: {
+                    show: false
                 }
             },
-            areaStyle: {normal: {}},
-            data:[820, 932, 901, 934, 1290, 1330, 1320]
-        }
-    ]
-};
+            itemStyle: {
+                normal: {
+                    areaColor: '#323c48',
+                    borderColor: '#111'
+                },
+                emphasis: {
+                    areaColor: '#2a333d'
+                }
+            }
+        },
+        series: [{
+            name: '弱',
+            type: 'scatter',
+            coordinateSystem: 'geo',
+            symbolSize: 1,
+            large: true,
+            itemStyle: {
+                normal: {
+                    shadowBlur: 2,
+                    shadowColor: 'rgba(37, 140, 249, 0.8)',
+                    color: 'rgba(37, 140, 249, 0.8)'
+                }
+            },
+            data: weiboData[0]
+        }, {
+            name: '中',
+            type: 'scatter',
+            coordinateSystem: 'geo',
+            symbolSize: 1,
+            large: true,
+            itemStyle: {
+                normal: {
+                    shadowBlur: 2,
+                    shadowColor: 'rgba(14, 241, 242, 0.8)',
+                    color: 'rgba(14, 241, 242, 0.8)'
+                }
+            },
+            data: weiboData[1]
+        }, {
+            name: '强',
+            type: 'scatter',
+            coordinateSystem: 'geo',
+            symbolSize: 1,
+            large: true,
+            itemStyle: {
+                normal: {
+                    shadowBlur: 2,
+                    shadowColor: 'rgba(255, 255, 255, 0.8)',
+                    color: 'rgba(255, 255, 255, 0.8)'
+                }
+            },
+            data: weiboData[2]
+        }]
+    });
+});
 
 
 
